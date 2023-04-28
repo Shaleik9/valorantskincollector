@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Skin List</h1>
+
+{% for skin in skins %}
+  <div class="card">
+    <a href="{% url 'detail' skin.id %}">
+    <div class="card-content">
+      <span class="card-title">{{ skin.collection }}</span>
+      <p>Weapon: {{ skin.weapon }}</p>
+      <p>Edition: {{ skin.edition }}</p>
+      {% if skin.limited == True %}
+      <p>Limited: Yes </p>
+      {% else %}
+      <p>Limited: No </p>
+      {% endif %}
+      {% if skin.chromas == True %}
+      <p>Chromas: Yes</p>
+      {% else %}
+      <p>Chromas: No</p>
+      {% endif %}
+      {% if skin.price > 500 %}
+        <p>Price: {{ skin.price }}</p>
+      {% else %}
+        <p>Price: Battlepass</p>
+      {% endif %}
+    </div>
+  </a>
+  </div>
+
+{% endfor %}
+
+{% endblock %}

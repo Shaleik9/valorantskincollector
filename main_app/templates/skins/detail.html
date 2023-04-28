@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Skin Details</h1>
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ skin.collection }}</span>
+        <p>Weapon: {{ skin.weapon }}</p>
+        <p>Edition: {{ skin.edition }}</p>
+        {% if skin.limited == True %}
+          <p>Limited: Yes </p>
+        {% else %}
+          <p>Limited: No </p>
+        {% endif %}
+        {% if skin.chromas == True %}
+          <p>Chromas: Yes</p>
+        {% else %}
+          <p>Chromas: No</p>
+        {% endif %}
+        {% if skin.price > 500 %}
+          <p>Price: {{ skin.price }}</p>
+        {% else %}
+          <p>Price: Battlepass</p>
+        {% endif %}
+      </div>
+      <div class="card-action">
+        <a href="{% url 'skins_update' skin.id %}">Edit</a>
+        <a href="{% url 'skins_delete' skin.id %}">Delete</a>
+      </div>
+    </div>
+  </div> 
+ <div class="col s6">
+     <form action="{% url 'add_used' skin.id %}" method="POST"> 
+      {% csrf_token %}
+      {{ used_form.as_p }}
+      <input type="submit" class="btn" value="Add Used">
+    </form>
+    <br>
+    {% if skin.used_for_today %}
+      <div class="card-panel teal-text center-align">{{skin.collection}} has been used today</div>
+    {% else %}
+      <div class="card-panel red-text center-align">{{skin.collection}} has not been used in a while</div>
+    {% endif %}
+    <table class="striped">
+      <thead>
+        <tr><th>Date</th><th>Map</th></tr>
+      </thead>
+      <tbody>
+        {% for used in skin.used_set.all %}
+          <tr>
+            <td>{{used.date}}</td>
+            <td>{{used.get_valmap_display}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+<div class="row">
+  <div class="col s6">
+    <h3>{{ skin.collection }}'s Buddies</h3>
+    {% if skin.buddies.count %}
+      {% for buddy in skin.buddies.all %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+              A <span style="color: {{ buddy.color }}">{{ buddy.color }}</span> {{ buddy.name }}
+            </span>
+          </div>
+          <div class="card-action">
+            <form action="{% url 'unassoc_buddy' skin.id buddy.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="btn">Remove</button>
+            </form>
+          </div>    
+        </div>
+      {% endfor %}
+    {% else %}
+      <h5>No Buddies 😿</h5>
+    {% endif %}
+  </div>
+  <!-- Available buddies will come after this line -->
+  <div class="col s6">
+    <h3>Available Buddies</h3>
+    {% if buddies.count %}
+      {% for buddy in buddies.all %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+              A <span style="color: {{ buddy.color }}">{{ buddy.color }}</span> {{ buddy.name }}
+            </span>
+          </div>
+          <div class="card-action">
+            <form action="{% url 'assoc_buddy' skin.id buddy.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="btn">Add</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <h5>{{skin.collection}} Already Has All Buddies Available</h5>
+    {% endif %}
+  </div>  
+</div>
+
+<script>
+  const dateEl = document.getElementById('id_date');
+  M.Datepicker.init(dateEl, {
+    format: 'yyyy-mm-dd',
+    defaultDate: new Date(),
+    setDefaultDate: true,
+    autoClose: true
+  });
+
+  const selectEl = document.getElementById('id_valmap');
+  M.FormSelect.init(selectEl);
+</script>
+
+{% endblock %}
